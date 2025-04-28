@@ -3,14 +3,70 @@ import styles from './PreorderPage.module.css';
 import { useEffect, useState } from 'react';
 
 export default function PreorderPage() {
+    const [preorder, setPreorders] = useState([]);
+    const [formVisible, setFormVisible] = useState(false);
+    const [ order_date, SetOrderDate ] = useState('');
+    const [ order_by, SetOrderBy ] = useState('');
+    const [ selected_package, setSelectedPackage ]= useState('');
+    const [ qty, setQty ] = useState('');
+    const [ status, setStatus ] = useState('');
+    const [ msg, setMsg ] = useState('');
+    const [editId, setEditId] = useState(null);
 
-  const [formVisible, setFormVisible] = useState(false);
-  const [ order_date, SetOrderDate ] = useState('');
-  const [ order_by, SetOrderBy ] = useState('');
-  const [ selected_package, setSelectedPackage ]= useState('');
-  const [ qty, setQty ] = useState('');
-  const [ status, setStatus ] = useState('');
-  const [ msg, setMsg ] = useState('');
+  const fetchPreorders = async () => {
+    const res = await fetch('/api/preorder');
+    const data = await res.json();
+    SetOrderBy, SetOrderDate(data);
+  };
+
+  useEffect(() => {
+    fetchPreorders();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const method = editId ? 'PUT' : 'POST';
+    const res = await fetch('/api/preorder', {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: editId, order_date, order_by, selected_package, status, qty  }),
+    });
+
+    if (res.ok) {
+      setMsg('Berhasil disimpan!');
+      SetOrderDate('');
+      SetOrderBy('');
+      setSelectedPackage('');
+      setStatus('');
+      setQty('');
+      setEditId(null);
+      setFormVisible(false);
+      fetchPreorders(); // refresh data
+    } else {
+      setMsg('Gagal menyimpan data');
+    }
+  };
+
+  const handleEdit = (item) => {
+    SetOrderDate(item.orderdate);
+    SetOrderBy(item.orderby);
+    setSelectedPackage(item.selectedpackage);
+    setStatus(item.status)
+    setQty(item.qty)
+    setEditId(item.id);
+    setFormVisible(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Yakin hapus data ini?')) return;
+    await fetch('/api/preorder', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    fetchPreorders();
+  };
+
 
   return (
     <div className={styles.container}>
@@ -30,7 +86,7 @@ export default function PreorderPage() {
                     <input
                     type="date"
                     value={order_date}
-                    onChange={(e) => setOrderDate(e.target.value)}
+                    onChange={(e) => SetOrderDate(e.target.value)}
                     required
                     />
                 </div>
@@ -39,7 +95,7 @@ export default function PreorderPage() {
                     <input
                     type="text"
                     value={order_by}
-                    onChange={(e) => setOrderBy(e.target.value)}
+                    onChange={(e) => SetOrderBy(e.target.value)}
                     placeholder="Masukkan Nama Pemesan"
                     required
                     />
@@ -111,6 +167,28 @@ export default function PreorderPage() {
                     <th>Aksi</th>
                 </tr>
                 </thead>
+
+                <tbody>
+          {PreorderPage.map((item, index) => (
+            <tr key={item.id}>
+              <td>{index + 1}</td>
+              <td>{item.order_by}</td>
+              <td>{item.order_date}</td>
+              <td>{item.selected_package}</td>
+              <td>{item.qty}</td>
+              <td>{item.status}</td>
+              <td>
+                <button onClick={() => handleEdit(item)}>Edit</button>
+                <button onClick={() => handleDelete(item.id)}>Hapus</button>
+              </td>
+            </tr>
+          ))}
+          {matkuls.length === 0 && (
+            <tr>
+              <td colSpan="4">Belum ada data</td>
+            </tr>
+          )}
+        </tbody>
             </table>    
         </div>
     </div>
