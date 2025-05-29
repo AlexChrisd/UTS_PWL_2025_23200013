@@ -8,16 +8,16 @@ export async function PUT(request, {params}) {
        return new Response(JSON.stringify({ error: 'Field kosong'}), {status: 400});
     }
 
-    const OrderDate = new Date(order_date).toISOString();
+    const newOrderDate = new Date(order_date).toISOString();
 
     const is_paid = status === "Lunas";
 
     const preorder = await prisma.preorder.update({
         where: { id: Number(id) },
-        data: { order_date: OrderDate, order_by, selected_package, qty, is_paid },
+        data: { order_date: newOrderDate, order_by, selected_package, qty, is_paid },
     });
 
-    const Preorder = {
+    const viewPreorder = {
         id: preorder.id,
         order_date: preorder.order_date.toISOString().split('T')[0],
         order_by: preorder.order_by,
@@ -26,7 +26,7 @@ export async function PUT(request, {params}) {
         status: preorder.is_paid ? "Lunas" : "Belum Lunas"
     };
 
-    return new Response(JSON.stringify(Preorder), { status: 200 }); 
+    return new Response(JSON.stringify(viewPreorder), { status: 200 }); 
 }
 
 export async function DELETE(request, {params}) {

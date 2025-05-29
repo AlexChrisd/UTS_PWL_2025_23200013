@@ -8,7 +8,7 @@ export default function PreorderPage() {
   const [preorders, setPreorders] = useState([]);
   const [order_date, setOrderDate ] = useState('');
   const [order_by, setOrderBy ] = useState('');
-  const [selected_package, setSelectedPackage ]= useState('');
+  const [selected_paket, setSelectedPaket ]= useState('');
   const [qty, setQty ] = useState('');
   const [status, setStatus ] = useState('');
   const [msg, setMsg ] = useState('');
@@ -31,14 +31,14 @@ export default function PreorderPage() {
         const res = await fetch(url, {
             method,
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ order_date, order_by, selected_package, qty: Number(qty), status }),
+            body: JSON.stringify({ order_date, order_by, selected_paket, qty: Number(qty), status }),
         });
 
         if (res.ok) {
             setMsg('Berhasil disimpan');
             setOrderDate('');
             setOrderBy('');
-            setSelectedPackage('');
+            setSelectedPaket('');
             setQty('');
             setStatus('');
             setEditId(null);
@@ -52,7 +52,7 @@ export default function PreorderPage() {
     const handleEdit = (item) => {
         setOrderDate(item.order_date);
         setOrderBy(item.order_by);
-        setSelectedPackage(item.selected_package);
+        setSelectedPaket(item.selected_paket);
         setQty(item.qty);
         setStatus(item.status === "Lunas" ? "Lunas" : "Belum Lunas");
         setEditId(item.id);
@@ -106,8 +106,8 @@ export default function PreorderPage() {
                 <div className={styles.formGroup}>
                     <span>Paket</span>
                     <select 
-                        value={selected_package}
-                        onChange={(e) => setSelectedPackage(e.target.value)}
+                        value={selected_paket}
+                        onChange={(e) => setSelectedPaket(e.target.value)}
                         required
                     >
                         <option value="">Pilih Paket</option>
@@ -176,7 +176,7 @@ export default function PreorderPage() {
                             <td>{index + 1}</td>
                             <td>{item.order_date}</td>
                             <td>{item.order_by}</td>
-                            <td>{item.selected_package}</td>
+                            <td>{item.selected_paket}</td>
                             <td>{item.qty}</td>
                             <td>{item.status}</td>
                             <td>

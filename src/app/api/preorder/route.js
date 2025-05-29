@@ -5,7 +5,7 @@ export async function GET() {
         orderBy: { id: 'asc' },
     });
 
-    const Data = data.map((item) => ({
+    const viewData = data.map((item) => ({
         id: item.id,
         order_date: item.order_date.toISOString().split('T')[0],
         order_by: item.order_by,
@@ -14,7 +14,7 @@ export async function GET() {
         status: item.is_paid ? "Lunas" : "Belum Lunas",
     }));
 
-    return new Response(JSON.stringify(Data), { status: 200 });
+    return new Response(JSON.stringify(viewData), { status: 200 });
 }
 
 export async function POST(request) {
@@ -26,12 +26,12 @@ export async function POST(request) {
         });
     }
 
-    const OrderDate = new Date(order_date).toISOString();
+    const newOrderDate = new Date(order_date).toISOString();
 
     const is_paid = status === "Lunas";
 
     const preorder = await prisma.preorder.create({
-        data: { order_date: OrderDate, order_by, selected_package, qty: parseInt(qty), is_paid },
+        data: { order_date: newOrderDate, order_by, selected_package, qty: parseInt(qty), is_paid },
     });
     
     preorder.order_date = preorder.order_date.toISOString().split('T')[0];
