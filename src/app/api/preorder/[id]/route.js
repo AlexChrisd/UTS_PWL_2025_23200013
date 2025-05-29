@@ -2,22 +2,22 @@ import prisma from "@/lib/prisma";
 
 export async function PUT(request, {params}) {
     const { id } = params;
-    const { order_date, order_by, selected_package, qty, status } = await request.json();
+    const { order_date, order_by, selected_package, qty, status } = await request.json ();
 
-    if (!order_date || !order_by || !selected_package || !qty || !status ) {
-       return new Response(JSON.stringify({ error: 'Field kosong'}), {status: 400});
+    if(!order_date || !order_by || !selected_package || !qty || !status ) {
+        return new Response(JSON.stringify({ error: 'Semua field wajib diisi' }), {status:400,});
     }
 
-    const newOrderDate = new Date(order_date).toISOString();
+    const OrderDate = new Date(order_date).toISOString();
 
     const is_paid = status === "Lunas";
 
     const preorder = await prisma.preorder.update({
         where: { id: Number(id) },
-        data: { order_date: newOrderDate, order_by, selected_package, qty, is_paid },
+        data: {order_date: OrderDate, order_by, selected_package, qty, is_paid },
     });
 
-    const viewPreorder = {
+    const Preorder = {
         id: preorder.id,
         order_date: preorder.order_date.toISOString().split('T')[0],
         order_by: preorder.order_by,
@@ -25,20 +25,20 @@ export async function PUT(request, {params}) {
         qty: preorder.qty,
         status: preorder.is_paid ? "Lunas" : "Belum Lunas"
     };
-
-    return new Response(JSON.stringify(viewPreorder), { status: 200 }); 
+    
+    return new Response(JSON.stringify(preorder), {status:200});
 }
 
 export async function DELETE(request, {params}) {
     const { id } = params;
-    
-    if (!id) return new Response(JSON.stringify({ error: "ID tidak ditemukan" }), 
-        { status: 400 });
+
+    if (!id) return new Response(JSON.stringify({ error: "ID tidak ditemukan" }),
+        {status:400});
 
     const deletedPreorder = await prisma.preorder.delete({
         where: { id: Number(id) },
     });
-        
-    return new Response(JSON.stringify({ message: "Berhasil dihapus"}), 
-        { status: 200 });
+
+    return new Response(JSON.stringify({ message: "Berhasil dihapus"}),
+        {status: 200 });
 }

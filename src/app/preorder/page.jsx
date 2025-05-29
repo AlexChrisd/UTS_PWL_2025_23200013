@@ -8,7 +8,7 @@ export default function PreorderPage() {
   const [preorders, setPreorders] = useState([]);
   const [order_date, setOrderDate ] = useState('');
   const [order_by, setOrderBy ] = useState('');
-  const [selected_paket, setSelectedPaket ]= useState('');
+  const [selected_package, setSelectedPackage ]= useState('');
   const [qty, setQty ] = useState('');
   const [status, setStatus ] = useState('');
   const [msg, setMsg ] = useState('');
@@ -18,58 +18,58 @@ export default function PreorderPage() {
     const res = await fetch('/api/preorder');
     const data = await res.json();
     setPreorders(data);
-    };
+  };
 
-    useEffect(() => {
+  useEffect(() => {
+    fetchPreorders();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const method = editId ? 'PUT' : 'POST';
+    const url = editId ? `/api/preorder/${editId}` : '/api/preorder';
+    const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'applicaton/json' },
+        body: JSON.stringify({ order_date, order_by, selected_package, qty: Number(qty), status}),
+    });
+
+    if (res.ok) {
+        setMsg('Berhasil disimpan');
+        setOrderDate('');
+        setOrderBy('');
+        setSelectedPackage('');
+        setQty('');
+        setStatus('');
+        setEditId(null);
+        setFormVisible(false);
         fetchPreorders();
-    }, []);
+    } else {
+        setMsg('Gagal menyimpan data');
+    }
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const method = editId ? 'PUT' : 'POST';
-        const url = editId ? `/api/preorder/${editId}` : '/api/preorder';
-        const res = await fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ order_date, order_by, selected_paket, qty: Number(qty), status }),
-        });
-
-        if (res.ok) {
-            setMsg('Berhasil disimpan');
-            setOrderDate('');
-            setOrderBy('');
-            setSelectedPaket('');
-            setQty('');
-            setStatus('');
-            setEditId(null);
-            setFormVisible(false);
-            fetchPreorders(); // refresh data
-        } else {
-            setMsg('Gagal menyimpan data');
-        }
-    };
-
-    const handleEdit = (item) => {
+  const handleEdit = (item) => {
         setOrderDate(item.order_date);
         setOrderBy(item.order_by);
-        setSelectedPaket(item.selected_paket);
+        setSelectedPackage(item.selelcted_package);
         setQty(item.qty);
         setStatus(item.status === "Lunas" ? "Lunas" : "Belum Lunas");
         setEditId(item.id);
         setFormVisible(true);
-    };
+  }
 
-    const handleDelete = async (id) => {
-        if (!confirm('Yakin hapus data ini?')) return;
+  const handleDelete = async (id) => {
+    if (!confirm('yakin hapus data ini?')) return;
 
-        await fetch(`/api/preorder/${id}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-        });
+    await fetch(`/api/preorder/${id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id})
+    });
 
-        fetchPreorders();
-    };
+    fetchPreorders();
+  };
 
   return (
     <div className={styles.container}>
@@ -106,8 +106,8 @@ export default function PreorderPage() {
                 <div className={styles.formGroup}>
                     <span>Paket</span>
                     <select 
-                        value={selected_paket}
-                        onChange={(e) => setSelectedPaket(e.target.value)}
+                        value={selected_package}
+                        onChange={(e) => setSelectedPackage(e.target.value)}
                         required
                     >
                         <option value="">Pilih Paket</option>
@@ -176,7 +176,7 @@ export default function PreorderPage() {
                             <td>{index + 1}</td>
                             <td>{item.order_date}</td>
                             <td>{item.order_by}</td>
-                            <td>{item.selected_paket}</td>
+                            <td>{item.selected_package}</td>
                             <td>{item.qty}</td>
                             <td>{item.status}</td>
                             <td>
@@ -185,7 +185,7 @@ export default function PreorderPage() {
                             </td>
                         </tr>
                     ))}
-                    {preorders.length === 0 && (
+                    {preorders.at.length === 0 && (
                         <tr>
                             <td colSpan="7">Belum ada data</td>
                         </tr>
